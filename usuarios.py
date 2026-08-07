@@ -1,79 +1,65 @@
-usuarios = []
-def crear_usuario():
-    print("-----REGISTRAR USUARIO-----")
-    id_usuario = input("Ingrese el ID de usuario (Cedula/Documento): ")
-    documento_existe = False
-    for u in usuarios:
-        if u['id'] == id_usuario:
-            documento_existe = True
-            break
-    if documento_existe:
-        print("Error: Ya existe un usuario resgistrado con ese documento.")
-        return    
+from persistence import cargar_datos, guardar_datos
+from logger import registrar_log
+archivo_usuarios = "usuarios.json" #Define la variable con el nombre del archivo JSON donde se almacenara la lista de usuarios
 
-    nombres = input("Nombres del usuario: ")
-    apellidos = input("Apellidos: ")
-    telefono = input("Telefono: ")
-    direccion = input("Direccion: ")
+def obtener_usuarios():  #para recupperar el listado de usuarios
+    return cargar_datos(archivo_usuarios) #retorna la lissta de usuarios cargada
 
-    print("Tipo de usuario: \n1.Residente \n2.Administrador")
-    opcion_usuario = input("seleccione (1-2): ")
-    tipo = "administrador" if opcion_usuario == "2" else "residente"
+def guardar_usuarios(usuarios, archivo_usuarios):
+    guardar_datos(usuarios, archivo_usuarios)
 
-    usuario = {
-        "id": id_usuario,
-        "Nombres": nombres,
-        "Apellidos": apellidos,
-        "Telefono": telefono,
-        "Direccion": direccion,
-        "Tipo de usuario": tipo
-    }
-    usuarios.append(usuario)
-    print("-----Usuario registrado-----")
+def crear_usuarios(id_u, nombres, apellidos, telefono, direccion, tipo):
+    usuarios = obtener_usuarios() #obtiene la lista de usuarios desde el archivo json
+    if any(us['id'] == id_u for us in usuarios): #verifica si ya existe algun usuario en la lista igual al id agregado
+        registrar_log(f"Intento fallido: Ya existe un usuario con ID {id_u}", " ERROR")
+        return False, "El ID de usuario ya esta registrado."
 
-def listar_usuarios():
-    print("-----LISTA DE USUARIOS-----")
-    if not usuarios:
-        print("No hay usuarios registrados.")
-        return
-for u in usuarios:
-    print(f"ID: {u['id']} | Nombre: {u['nombres']},{u['apellidos']} | "
-          f"Tel: {u['telefono']} | Dir: {u['direccion']} | Tipo: {u['tipo']}")
+    nuevo_usuario = {
+        "id": id_u,
+        "nombres": nombres,
+        "apellidos": apellidos,
+        "telefono": telefono,
+        "direccion": direccion,
+        "tipo": tipo.lower() # Administrador  o residente
+    }    
 
-def buscar_usuario():
-    print("---BUSCAR USUARIO---")
-    id_usuario = input("Ingrese el ID del usuario: ")
-    for u in usuarios:
-        if u['id'] == id_usuario:
-            print(f"Encontrado: {u}")
-            return u
-    print("Usuario no encontrado.")
+    usuarios.append(nuevo_usuario) #agrega el nuevo diccionario a la lista de usuarios en memoria
+    archivo_usuarios(usuarios) 
+    registrar_log(f"Usuario crado existosamente: {id_u} - {nombres} {apellidos}")
+    return "Usuario registrado correctamente."
+
+def buscar_usuario(id_u):
+    usuarios = obtener_usuarios()
+    for us in usuarios:
+        if us["id"] == id_u: # #compara si el ID del usuario iterado coincide con el id_u buscado
+            return us
     return None
 
-def actualizar_usuario():
-    print("-----ACTUALIZAR USUARIO-----")
-    u = buscar_usuario()
-    if u:
-        print("Deja en blaco si no desea modificar el campo.")
-        #mantiene el valor actual si la entrada del usuario queda vacia
-        u['nombres'] = input(f"Nombres [{u['nombres']}]: ") or u['nombres']
-        u['apellidos'] = input(f"Apellidos [{u['apellidos']}]: ") or u['apellidos']
-        u['telefono'] = int(input(f"Telefono [{u['telefono']}]: ")) or u['telefono']
-        u['direccion'] = input(f"Direccion [{u['direccion']}]: ") or u['direccion']
-        print("Tipo: 1.Residente | 2.Administrador | presione Enter para omitir.")
-        opcion_tipo = input("seleccione (1-2): ")
-        if opcion_tipo == "1":
-            u['tipo'] = "residente"
-        elif opcion_tipo == "2":
-            u['tipo'] = "administrador"
-        print("-----USUARIO ACTUALIZADO-----") 
+def actudalizar_usuario(id_u, nombres=None, apellidos=None, telefono=None, direccion=None, tipo=None):
+    usuarios = obtener_usuarios() #carga la lista de usuarios almacenados
+    for us in usuarios:
+        if us["id"] == id_u: 
+            if nombres: us["nombres"] = nombres
+            if apellidos: us["apellidos"] = apellidos
+            if telefono: us["telefono"] = telefono  
+            if direccion: us["direccion"] = direccion
+            if tipo: us["tipo"] = tipo.lower()
+            guardar_usuarios(usuarios)
+            registrar_log(f"Usuario {id_u} actualizado correctamente.")
+            return True, "Usuario actualizado."
+        return False, "Usuario no encontrado."
 
-def eliminar_usuario():
-    print("-----ELIMINAR USUARIO-----")
-    id_u = input("Ingrese el ID del usuario a eliminar: ")
-    for u in usuarios:
-        if u['id'] == id_u:
-            usuarios.remove(u)
-            print("Usuario eliminado con exito.")
-            return
-print("Usuario no encontrado.")                       
+def eliminar_usuario(id_u):
+    usuarios = obtener_usuarios()
+    usuarios_filtrados = [us for us in usuarios if us["id"] != id_u]
+    if len(usuarios == len(usuarios_filtrados)):
+        return False, "Usuario no encontrado."
+    guardar_usuarios(usuarios_filtrados)
+    registrar_log(f"Usuario {id_u} eliminado.")
+    return True, "Usuario eliminado correctamente."
+
+
+
+           
+    
+                         
