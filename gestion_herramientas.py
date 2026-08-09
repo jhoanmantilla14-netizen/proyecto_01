@@ -16,7 +16,7 @@ def registrar_herramienta():
         # Verificar si el ID ya existe
         if id_herramienta in herramientas:
             print("El ID ya existe.")
-            registrar_log(f"Intento fallido: el ID {id_herramienta} ya existe.","WARNING")
+            registrar_log(f"Intento fallido: el ID {id_herramienta} ya existe.","WARNING") 
             return
 
         nombre = input("Nombre: ").strip()
