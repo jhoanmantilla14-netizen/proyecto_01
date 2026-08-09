@@ -1,15 +1,6 @@
-#importar o crear la crapeta json
-import json
-try:
-    archivo = open("herramientas.json", "r")
-    herramientas = json.load(archivo)
-    archivo.close()
-except:
-    herramientas = {}
-    archivo = open("herramientas.json", "w")
-    json.dump(herramientas, archivo, indent=4)
-    archivo.close()
-#------------------------Funciones-----------------------
+
+
+#------------------------Funciones----------------------
 def registrar_herramientas():
     try:
         id_herramienta = input("ID de la herramienta: ") 
