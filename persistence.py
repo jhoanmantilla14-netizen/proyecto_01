@@ -5,8 +5,10 @@ def guardar_datos(datos, nombre_archivo):
     try:
         with open(nombre_archivo, "w", encoding="utf-8") as archivo:
             json.dump(datos, archivo, indent=4, ensure_ascii=False)
+        return True
     except Exception as e:
-        registrar_log(f"Error al guardar datos en {nombre_archivo}: {e}", "ERROR")        
+        registrar_log(f"Error al guardar datos en {nombre_archivo}: {e}", "ERROR") 
+        return False       
 
 def cargar_datos(nombre_archivo):
     if not os.path.exists(nombre_archivo):
@@ -14,6 +16,9 @@ def cargar_datos(nombre_archivo):
     try:
         with open(nombre_archivo, "r", encoding="utf-8") as archivo:
             return json.load(archivo)
+    except json.JSONDecodeError as e:
+        registrar_log(f"EL arcivo {nombre_archivo} contiene JSON invalido: {e}", "ERROR")
+        return []   
     except Exception as e:
         registrar_log(f"Error al cargar datos {nombre_archivo}: {e}", "ERROR")
         return []

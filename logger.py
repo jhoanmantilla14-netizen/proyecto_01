@@ -1,6 +1,6 @@
 from datetime import datetime
-def registrar_log(mensaje, tipo="ERROR", nombre_archivo="app.log"):
-    timestamp = datetime.now().strftime("%Y-%M-%D %H:%M:%S")
+def registrar_log(mensaje, tipo="INFO", nombre_archivo="app.log"):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     linea = f"[{timestamp}] [{tipo.upper()}]: {mensaje}\n" 
     try:
         with open(nombre_archivo, "a", encoding="utf-8") as archivo: 
